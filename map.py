@@ -42,8 +42,8 @@ def init():
     global goal_y
     global first_update
     sand = np.zeros((longueur,largeur))
-    goal_x = 20
-    goal_y = largeur - 20
+    goal_x = 30
+    goal_y = largeur - 30
     first_update = False
 
 # Initializing the last distance
@@ -94,7 +94,8 @@ class Ball2(Widget):
     pass
 class Ball3(Widget):
     pass
-
+class Goal(Widget): 
+    pass
 # Creating the game class
 
 class Game(Widget):
@@ -103,7 +104,7 @@ class Game(Widget):
     ball1 = ObjectProperty(None)
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
-
+    goal = ObjectProperty(None)
     def serve_car(self):
         self.car.center = self.center
         self.car.velocity = Vector(6, 0)
@@ -136,7 +137,7 @@ class Game(Widget):
         self.ball1.pos = self.car.sensor1
         self.ball2.pos = self.car.sensor2
         self.ball3.pos = self.car.sensor3
-
+        self.goal.pos = Vector(goal_x, goal_y)
         if sand[int(self.car.x),int(self.car.y)] > 0:
             self.car.velocity = Vector(1, 0).rotate(self.car.angle)
             last_reward = -1
@@ -159,7 +160,7 @@ class Game(Widget):
             self.car.y = self.height - 10
             last_reward = -1
 
-        if distance < 100:
+        if distance < 20:
             goal_x = self.width-goal_x
             goal_y = self.height-goal_y
         last_distance = distance
