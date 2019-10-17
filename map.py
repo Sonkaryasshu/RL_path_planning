@@ -10,7 +10,7 @@ import time
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.graphics import Color, Ellipse, Line
+from kivy.graphics import Color, Ellipse, Line, InstructionGroup
 from kivy.config import Config
 from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.vector import Vector
@@ -99,12 +99,22 @@ class Goal(Widget):
 # Creating the game class
 
 class Game(Widget):
+    def __init__(self, **kwargs):
+        super(Game, self).__init__(**kwargs)
 
+        self.ig = InstructionGroup()
+        self.line = Line(points = (self.car.x, self.car.y), width = 1)
+        self.ig.add(self.line)
+        self.canvas.add(self.ig)
     car = ObjectProperty(None)
     ball1 = ObjectProperty(None)
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
     goal = ObjectProperty(None)
+    # with self.canvas:
+    #     Color(0.8,0.7,0)
+    # self.line = Line(points = (self.car.x, self.car.y), width = 10)
+
     def serve_car(self):
         self.car.center = self.center
         self.car.velocity = Vector(6, 0)
@@ -119,12 +129,12 @@ class Game(Widget):
         global goal_y
         global longueur
         global largeur
-
+        
         longueur = self.width
         largeur = self.height
         if first_update:
             init()
-
+        self.line.points += [self.car.x, self.car.y]
         xx = goal_x - self.car.x
         yy = goal_y - self.car.y
         orientation = Vector(*self.car.velocity).angle((xx,yy))/180.
@@ -163,6 +173,7 @@ class Game(Widget):
         if distance < 20:
             goal_x = self.width-goal_x
             goal_y = self.height-goal_y
+            self.line.points = [self.car.x, self.car.y]
         last_distance = distance
 
 # Adding the painting tools
@@ -173,7 +184,6 @@ class MyPaintWidget(Widget):
         global length, n_points, last_x, last_y
         with self.canvas:
             Color(0.8,0.7,0)
-            d = 10.
             touch.ud['line'] = Line(points = (touch.x, touch.y), width = 10)
             last_x = int(touch.x)
             last_y = int(touch.y)
