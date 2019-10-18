@@ -179,11 +179,13 @@ class Game(Widget):
             dist_list.append(dist)
             dist = 0
             plt.plot(dist_list)
+            plt.title("Car")
+            plt.xlabel("No of iterations")
+            plt.ylabel("No of steps taken")
             plt.show()
         last_distance = distance
     
-    def grap(self, dt):
-        pass
+    # def grap(self, dt):
         # plt.ion()
         # plt.plot(dist_list)
         # plt.show()
