@@ -33,7 +33,8 @@ brain = Dqn(5,3,0.9)
 action2rotation = [0,20,-20]
 last_reward = 0
 scores = []
-
+dist_list = []
+dist = 0
 # Initializing the map
 first_update = True
 sand = []
@@ -107,7 +108,9 @@ class Game(Widget):
         super(Game, self).__init__(**kwargs)
 
         self.ig = InstructionGroup()
-        self.line = Line(points = (self.car.x, self.car.y), width = 1)
+        with self.canvas:
+            Color(1,0,1)
+        self.line = Line(points = (self.car.center_x, self.car.center_y), width = 1)
         self.ig.add(self.line)
         self.canvas.add(self.ig)
     car = ObjectProperty(None)
@@ -115,8 +118,12 @@ class Game(Widget):
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
     goal = ObjectProperty(None)
+<<<<<<< HEAD
 
 
+=======
+   
+>>>>>>> b0d8300ff03d6c79da96359f1e8fe4f5eaa0974b
     def serve_car(self):
         self.car.center = self.center
         self.car.velocity = Vector(6, 0)
@@ -131,12 +138,14 @@ class Game(Widget):
         global goal_y
         global longueur
         global largeur
-        
+        global dist
+        global dist_list
         longueur = self.width
         largeur = self.height
         if first_update:
             init()
-        self.line.points += [self.car.x, self.car.y]
+        self.line.points += [self.car.center_x, self.car.center_y]
+        dist = dist + 1
         xx = goal_x - self.car.x
         yy = goal_y - self.car.y
         orientation = Vector(*self.car.velocity).angle((xx,yy))/180.
@@ -149,7 +158,7 @@ class Game(Widget):
         self.ball1.pos = self.car.sensor1
         self.ball2.pos = self.car.sensor2
         self.ball3.pos = self.car.sensor3
-        self.goal.pos = Vector(goal_x, goal_y)
+        self.goal.center = Vector(goal_x, goal_y)
         if sand[int(self.car.x),int(self.car.y)] > 0:
             self.car.velocity = Vector(1, 0).rotate(self.car.angle)
             last_reward = -1
@@ -176,7 +185,20 @@ class Game(Widget):
             goal_x = self.width-goal_x
             goal_y = self.height-goal_y
             self.line.points = [self.car.x, self.car.y]
+            dist_list.append(dist)
+            dist = 0
+            plt.plot(dist_list)
+            plt.title("Car")
+            plt.xlabel("No of iterations")
+            plt.ylabel("No of steps taken")
+            plt.show()
         last_distance = distance
+    
+    # def grap(self, dt):
+        # plt.ion()
+        # plt.plot(dist_list)
+        # plt.show()
+        # plt.close('all')
 
 # Adding the painting tools
 
@@ -215,10 +237,11 @@ class CarApp(App):
         parent = Game()
         parent.serve_car()
         Clock.schedule_interval(parent.update, 1.0/60.0)
+        # Clock.schedule_interval(parent.grap, 1.0/60.0)
         self.painter = MyPaintWidget()
-        clearbtn = Button(text = 'clear')
-        savebtn = Button(text = 'save', pos = (parent.width, 0))
-        loadbtn = Button(text = 'load', pos = (2 * parent.width, 0))
+        clearbtn = Button(text = 'clear', size=(75,50), background_color = (1,0,0,0.5))
+        savebtn = Button(text = 'save', pos = (75, 0), size=(75,50), background_color = (1,0,0,0.5))
+        loadbtn = Button(text = 'load', pos = (2 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
         clearbtn.bind(on_release = self.clear_canvas)
         savebtn.bind(on_release = self.save)
         loadbtn.bind(on_release = self.load)
