@@ -118,12 +118,8 @@ class Game(Widget):
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
     goal = ObjectProperty(None)
-<<<<<<< HEAD
 
 
-=======
-   
->>>>>>> b0d8300ff03d6c79da96359f1e8fe4f5eaa0974b
     def serve_car(self):
         self.car.center = self.center
         self.car.velocity = Vector(6, 0)
