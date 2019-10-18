@@ -36,6 +36,10 @@ scores = []
 
 # Initializing the map
 first_update = True
+sand = []
+goal_x,goal_y=0,0
+longueur,largeur = 0,0
+
 def init():
     global sand
     global goal_x
@@ -111,9 +115,7 @@ class Game(Widget):
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
     goal = ObjectProperty(None)
-    # with self.canvas:
-    #     Color(0.8,0.7,0)
-    # self.line = Line(points = (self.car.x, self.car.y), width = 10)
+
 
     def serve_car(self):
         self.car.center = self.center
