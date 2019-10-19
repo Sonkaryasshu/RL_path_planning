@@ -1,5 +1,3 @@
-# Self Driving Car
-
 # Importing the libraries
 import numpy as np
 from random import random, randint
@@ -39,8 +37,8 @@ dist = 0
 first_update = True
 x_max = 800
 y_max = 600
-goal_x = 30
-goal_y = 600 - 30
+goal_x = 60
+goal_y = y_max - 60
 start_x =  x_max - goal_x
 start_y = y_max - goal_y
 sand = np.zeros((x_max,y_max))
@@ -106,6 +104,8 @@ class Game(Widget):
             Color(1,0,1)
         self.car.x = start_x
         self.car.y = start_y
+        self.goal.x = goal_x
+        self.goal.y = goal_y
         self.line = Line(points = (start_x, start_y), width = 1)
         self.ig.add(self.line)
         self.canvas.add(self.ig)
@@ -242,10 +242,13 @@ class CarApp(App):
         self.parent.ball2.pos = (Vector(30, 0).rotate((self.parent.car.angle+30)%360) + self.parent.ball2.pos)
         self.parent.ball1.pos = (Vector(30, 0).rotate((self.parent.car.angle-30)%360) + self.parent.ball1.pos)
         return self.parent
-
+    startcalled = 0
     def start(self,obj):
+        if self.startcalled:
+            return
         Clock.schedule_interval(self.parent.update, 1.0/60.0)
-        self.startbtn.text=""
+        self.startbtn.opacity = 0
+        self.startcalled =1
 
     def clear_canvas(self, obj):
         global sand
