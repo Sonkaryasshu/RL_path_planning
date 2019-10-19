@@ -37,15 +37,13 @@ dist_list = []
 dist = 0
 # Initializing the map
 first_update = True
-def init():
-    global sand
-    global goal_x
-    global goal_y
-    global first_update
-    sand = np.zeros((longueur,largeur))
-    goal_x = 30
-    goal_y = largeur - 30
-    first_update = False
+x_max = 800
+y_max = 600
+goal_x = 30
+goal_y = 600 - 30
+start_x =  x_max - goal_x
+start_y = y_max - goal_y
+sand = np.zeros((x_max,y_max))
 
 # Initializing the last distance
 last_distance = 0
@@ -82,11 +80,11 @@ class Car(Widget):
         self.signal1 = int(np.sum(sand[int(self.sensor1_x)-10:int(self.sensor1_x)+10, int(self.sensor1_y)-10:int(self.sensor1_y)+10]))/400.
         self.signal2 = int(np.sum(sand[int(self.sensor2_x)-10:int(self.sensor2_x)+10, int(self.sensor2_y)-10:int(self.sensor2_y)+10]))/400.
         self.signal3 = int(np.sum(sand[int(self.sensor3_x)-10:int(self.sensor3_x)+10, int(self.sensor3_y)-10:int(self.sensor3_y)+10]))/400.
-        if self.sensor1_x>longueur-10 or self.sensor1_x<10 or self.sensor1_y>largeur-10 or self.sensor1_y<10:
+        if self.sensor1_x>x_max-10 or self.sensor1_x<10 or self.sensor1_y>y_max-10 or self.sensor1_y<10:
             self.signal1 = 1.
-        if self.sensor2_x>longueur-10 or self.sensor2_x<10 or self.sensor2_y>largeur-10 or self.sensor2_y<10:
+        if self.sensor2_x>x_max-10 or self.sensor2_x<10 or self.sensor2_y>y_max-10 or self.sensor2_y<10:
             self.signal2 = 1.
-        if self.sensor3_x>longueur-10 or self.sensor3_x<10 or self.sensor3_y>largeur-10 or self.sensor3_y<10:
+        if self.sensor3_x>x_max-10 or self.sensor3_x<10 or self.sensor3_y>y_max-10 or self.sensor3_y<10:
             self.signal3 = 1.
 
 class Ball1(Widget):
@@ -102,39 +100,43 @@ class Goal(Widget):
 class Game(Widget):
     def __init__(self, **kwargs):
         super(Game, self).__init__(**kwargs)
-
+        print("Game init called")
         self.ig = InstructionGroup()
         with self.canvas:
             Color(1,0,1)
-        self.line = Line(points = (self.car.center_x, self.car.center_y), width = 1)
+        self.car.x = start_x
+        self.car.y = start_y
+        self.line = Line(points = (start_x, start_y), width = 1)
         self.ig.add(self.line)
         self.canvas.add(self.ig)
+    
     car = ObjectProperty(None)
     ball1 = ObjectProperty(None)
     ball2 = ObjectProperty(None)
     ball3 = ObjectProperty(None)
     goal = ObjectProperty(None)
-   
+
     def serve_car(self):
         self.car.center = self.center
         self.car.velocity = Vector(6, 0)
 
     def update(self, dt):
-
         global brain
         global last_reward
         global scores
         global last_distance
         global goal_x
         global goal_y
-        global longueur
-        global largeur
+        global start_x
+        global start_y
         global dist
         global dist_list
-        longueur = self.width
-        largeur = self.height
+        global first_update
+        
         if first_update:
-            init()
+            self.car.x = start_x
+            self.car.y = start_y
+            first_update = False
         self.line.points += [self.car.center_x, self.car.center_y]
         dist = dist + 1
         xx = goal_x - self.car.x
@@ -173,24 +175,18 @@ class Game(Widget):
             last_reward = -1
 
         if distance < 20:
-            goal_x = self.width-goal_x
-            goal_y = self.height-goal_y
+            self.car.x = start_x
+            self.car.y = start_y
             self.line.points = [self.car.x, self.car.y]
             dist_list.append(dist)
             dist = 0
-            plt.plot(dist_list)
-            plt.title("Car")
-            plt.xlabel("No of iterations")
-            plt.ylabel("No of steps taken")
-            plt.show()
+            # plt.plot(dist_list)
+            # plt.title("Car")
+            # plt.xlabel("No of iterations")
+            # plt.ylabel("No of steps taken")
+            # plt.show()
         last_distance = distance
     
-    # def grap(self, dt):
-        # plt.ion()
-        # plt.plot(dist_list)
-        # plt.show()
-        # plt.close('all')
-
 # Adding the painting tools
 
 class MyPaintWidget(Widget):
@@ -223,29 +219,38 @@ class MyPaintWidget(Widget):
 # Adding the API Buttons (clear, save and load)
 
 class CarApp(App):
-
     def build(self):
-        parent = Game()
-        parent.serve_car()
-        Clock.schedule_interval(parent.update, 1.0/60.0)
-        # Clock.schedule_interval(parent.grap, 1.0/60.0)
+        self.parent = Game()
+        self.parent.serve_car()
+        # Clock.schedule_interval(self.parent.update, 1.0/60.0)
         self.painter = MyPaintWidget()
         clearbtn = Button(text = 'clear', size=(75,50), background_color = (1,0,0,0.5))
         savebtn = Button(text = 'save', pos = (75, 0), size=(75,50), background_color = (1,0,0,0.5))
         loadbtn = Button(text = 'load', pos = (2 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
+        self.startbtn = Button(text = 'start', pos = (3 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
         clearbtn.bind(on_release = self.clear_canvas)
         savebtn.bind(on_release = self.save)
         loadbtn.bind(on_release = self.load)
-        parent.add_widget(self.painter)
-        parent.add_widget(clearbtn)
-        parent.add_widget(savebtn)
-        parent.add_widget(loadbtn)
-        return parent
+        self.startbtn.bind(on_release = self.start)
+        self.parent.add_widget(self.painter)
+        self.parent.add_widget(clearbtn)
+        self.parent.add_widget(savebtn)
+        self.parent.add_widget(loadbtn)
+        self.parent.add_widget(self.startbtn)
+        self.parent.car.center = (start_x, start_y)
+        self.parent.ball3.pos = (Vector(30, 0).rotate(self.parent.car.angle) + self.parent.ball3.pos)
+        self.parent.ball2.pos = (Vector(30, 0).rotate((self.parent.car.angle+30)%360) + self.parent.ball2.pos)
+        self.parent.ball1.pos = (Vector(30, 0).rotate((self.parent.car.angle-30)%360) + self.parent.ball1.pos)
+        return self.parent
+
+    def start(self,obj):
+        Clock.schedule_interval(self.parent.update, 1.0/60.0)
+        self.startbtn.text=""
 
     def clear_canvas(self, obj):
         global sand
         self.painter.canvas.clear()
-        sand = np.zeros((longueur,largeur))
+        sand = np.zeros((x_max,y_max))
 
     def save(self, obj):
         print("saving brain...")

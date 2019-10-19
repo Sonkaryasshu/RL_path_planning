@@ -49,7 +49,6 @@
             pos: self.pos
             size: self.size
 <Game>:
-    # size: self.width, self.height -50
     car: game_car
     ball1: game_ball1
     ball2: game_ball2
@@ -57,16 +56,16 @@
     goal: game_goal
     Car:
         id: game_car
-        center: self.parent.center
+        center: game_car.center
     Ball1:
         id: game_ball1
-        center: self.parent.center
+        center: game_car.center
     Ball2:
         id: game_ball2
-        center: self.parent.center
+        center: game_car.center
     Ball3:
         id: game_ball3
-        center: self.parent.center
+        center: game_car.center 
     Goal:
         id: game_goal
-        center: self.parent.center
+        center: 30, 570
