@@ -3,7 +3,7 @@ import numpy as np
 from random import random, randint
 import matplotlib.pyplot as plt
 import time
-
+import os
 # Importing the Kivy packages
 from kivy.app import App
 from kivy.uix.widget import Widget
@@ -225,17 +225,23 @@ class CarApp(App):
         # Clock.schedule_interval(self.parent.update, 1.0/60.0)
         self.painter = MyPaintWidget()
         clearbtn = Button(text = 'clear', size=(75,50), background_color = (1,0,0,0.5))
-        savebtn = Button(text = 'save', pos = (75, 0), size=(75,50), background_color = (1,0,0,0.5))
+        # save_obstacle_btn = Button(text = 'save map', pos = (75, 0), size=(75,50), background_color = (1,0,0,0.5))
+        # load_obstacle_btn = Button(text = 'load map', pos = (2 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
+        savebtn = Button(text = 'save', pos = (1 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
         loadbtn = Button(text = 'load', pos = (2 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
         self.startbtn = Button(text = 'start', pos = (3 * 75, 0), size=(75,50), background_color = (1,0,0,0.5))
         clearbtn.bind(on_release = self.clear_canvas)
         savebtn.bind(on_release = self.save)
         loadbtn.bind(on_release = self.load)
+        # save_obstacle_btn.bind(on_release = self.save_obstacle_canvas)
+        # load_obstacle_btn.bind(on_release = self.load_obstacle_canvas)
         self.startbtn.bind(on_release = self.start)
         self.parent.add_widget(self.painter)
         self.parent.add_widget(clearbtn)
         self.parent.add_widget(savebtn)
         self.parent.add_widget(loadbtn)
+        # self.parent.add_widget(save_obstacle_btn)
+        # self.parent.add_widget(load_obstacle_btn)
         self.parent.add_widget(self.startbtn)
         self.parent.car.center = (start_x, start_y)
         self.parent.ball3.pos = (Vector(30, 0).rotate(self.parent.car.angle) + self.parent.ball3.pos)
@@ -254,11 +260,37 @@ class CarApp(App):
         global sand
         self.painter.canvas.clear()
         sand = np.zeros((x_max,y_max))
+    
+    # def load_obstacle_canvas(self, obj):
+    #     if os.path.isfile('obstacle.npy'):
+    #         print("loading obstacle file")
+    #         global sand
+    #         self.painter.canvas.clear()
+    #         s = np.load("obstacle.npy")
+    #         sand = s
+    #         with self.painter.canvas:
+    #             Color(0.8,0.7,0)
+    #             l = Line(points = sand, width =10)
+    #     else:
+    #         print("No file found")
+
+    # def save_obstacle_canvas(self, obj):
+    #     global sand
+    #     np.save("obstacle.npy", sand)
 
     def save(self, obj):
         print("saving brain...")
         brain.save()
+        plt.figure()
+
+        plt.subplot(121)
+        plt.title("Brain Score")
         plt.plot(scores)
+        
+        plt.subplot(122)
+        plt.title("Path Distance")
+        plt.plot(dist_list)
+        plt.suptitle('Stats')
         plt.show()
 
     def load(self, obj):
